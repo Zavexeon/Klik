@@ -34,28 +34,33 @@ class Klik {
 
         const keydownTime = Date.now()
               , oldKeymap = new this.Keyboard({ ...this.keyboard.keymap })
-
-        this.keyboard.keymap[key.key] = this._parseKeyEvent(key, {
+        
+        const keyData = this._parseKeyEvent(key, {
             pressed:       true
             , keydownTime: keydownTime
         })
 
+        this.keyboard.keymap[key.key] = keyData
+
         this._callListeners('update', new this.Keyboard({ ...this.keyboard.keymap }), oldKeymap)
+        this._callListeners('keydown', keyData, new this.Keyboard({ ...this.keyboard.keymap }))
     }
 
     _keyupCallback = key => {
         const keyupTime   = Date.now()
               , oldKeymap = new this.Keyboard({ ...this.keyboard.keymap })
 
-        this.keyboard.keymap[key.key] = this._parseKeyEvent(key, { 
+        const keyData = this._parseKeyEvent(key, { 
             pressed:       false 
             , keydownTime: this.keyboard.keymap[key.key].keydownTime
             , keyupTime:   keyupTime
             , pressTime:   keyupTime - this.keyboard.keymap[key.key].keydownTime
-            , _event:      key 
         })
 
+        this.keyboard.keymap[key.key] = keyData
+
         this._callListeners('update', new this.Keyboard({ ...this.keyboard.keymap }), oldKeymap)
+        this._callListeners('keyup', keyData, new this.Keyboard({ ...this.keyboard.keymap }))
     } 
 
     on(eventName, callback) {
@@ -69,8 +74,6 @@ class Klik {
         this._eventListeners[eventName].push(callback)
     }
 }
-
-
 
 const klik = new Klik()
 
